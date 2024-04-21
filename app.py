@@ -26,7 +26,7 @@ files = UploadSet('files', AllExcept(('exe', 'dll', 'so')))
 configure_uploads(app, files)
 
 # Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb+srv://ChiragRohada:s54icYoW4045LhAW@atlascluster.t7vxr4g.mongodb.net/test')
 db = client['vehicle_data']
 collection = db['info']
 
