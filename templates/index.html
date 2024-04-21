@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html class="bg-gray-100">
+
+<head>
+    <title>Vehicle Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Add viewport meta tag for responsive design -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="font-sans">
+
+    <div class="container mx-auto p-8">
+
+        <h1 class="text-5xl font-bold mb-8">Vehicle Search</h1>
+
+
+       
+        <div class="mb-6">
+            <label for="dataType" class="font-semibold text-lg">Select Data Type:</label>
+            <select id="StickerColour" class="ml-4 p-2 rounded-md shadow-sm">
+                <option value="Green">Green</option>
+                <option value="Red">Red</option>
+            </select>
+        </div>
+        <div class="relative mb-8">
+            <input type="text" id="searchInput" placeholder="Search..."
+                class="w-full p-4 border rounded-md shadow-sm focus:outline-none focus:border-blue-500 text-xl"
+                onkeyup="getSuggestions()">
+
+            <ul id="suggestions" class="absolute z-10 w-full bg-white border rounded-b-md border-t-0 shadow-lg mt-2">
+            </ul>
+        </div>
+
+        <div id="searchResults" class="grid gap-6 md:grid-cols-1 lg:grid-cols-2"></div>
+        <!-- Changed grid columns for better mobile view -->
+
+
+
+    </div>
+
+    {% if session['is_admin'] %}
+    <div class="grid grid-cols-2 w-full fixed bottom-0 gap-1">
+        <a href="/upload"
+        class="text-white bg-green-600 border-gray-400  border-2 rounded-r-0  w-full p-4 font-semibold  hover:bg-green-700 mb-1 block text-center">Upload
+        Excel File</a>
+
+        <a href="/logout"
+        class="text-white bg-green-600 border-gray-400  border-2 rounded-l-0 w-full p-4 font-semibold  hover:bg-green-700 mb-1 block text-center">
+        Admin Logout</a>
+    </div>
+       {% else %}
+
+
+    <div class="grid grid-cols-1 w-full fixed bottom-0 gap-1">
+
+
+        <a href="/login"
+        class="text-white bg-green-600 border-gray-400  border-2 rounded-l-0 w-full p-4 font-semibold  hover:bg-green-700 mb-1 block text-center">
+        Admin Login</a>
+    </div>
+       {% endif %}
+
+
+    <script>
+        function getSuggestions() {
+            const query = document.getElementById('searchInput').value;
+            const StickerColour = document.getElementById('StickerColour').value; // Get selected data type
+
+
+            fetch(`/suggestions?q=${query}&StickerColour=${StickerColour}`)
+                .then(response => response.json())
+                .then(data => {
+                    const suggestions = document.getElementById('suggestions');
+                    suggestions.innerHTML = '';  // Clear previous suggestions
+
+                    data.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `Vehicle No: ${item.VehicleNo}, Sticker No: ${item.StickerNo}`;
+                        li.onclick = () => getFullData(item.VehicleNo, item.StickerNo);
+                        suggestions.appendChild(li);
+                    });
+                });
+        }
+
+        function getFullData(vehicleNo, stickerNo) {
+            const suggestions = document.getElementById('suggestions');
+            suggestions.innerHTML = '';
+            const StickerColour = document.getElementById('StickerColour').value;
+            document.getElementById("searchInput").value = stickerNo;
+
+            fetch(`/fullData?vehicleNo=${vehicleNo || ''}&stickerNo=${stickerNo || ''}&stickerColour=${StickerColour || ''}`)
+                .then(response => response.json())
+                .then(data => {
+                    const searchResults = document.getElementById('searchResults');
+                    searchResults.innerHTML = '';  // Clear previous results
+
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'bg-white rounded-md shadow-md p-6';  // Increased padding
+                        let cardContent = `
+                <p class="font-semibold text-xl mb-4">Sticker No: ${item.StickerNo}</p>
+                <p class="text-lg mb-2">Vehicle No: ${item.VehicleNo}</p>
+                <p class="text-lg mb-2">Name: ${item.Name}</p>
+                <p class="text-lg mb-2">Sticker Colour: ${item.StickerColour}</p>
+                <p class="text-lg mb-2">Type: ${item.Type}</p>
+                <p class="text-lg mb-2">Wing: ${item.Wing}</p>
+
+
+            `;
+            
+            // Check for the presence of OwnerName and ContactNumber
+            if (item.OwnerName) {
+                cardContent += `
+                    <p class="text-lg mb-2">Owner Name: ${item.OwnerName}</p>
+                `;
+            }
+            
+            if (item.ContactNumber) {
+                cardContent += `
+                    <p class="text-lg mb-2">Contact Number: ${item.ContactNumber}</p>
+                `;
+            }
+            
+            card.innerHTML = cardContent;
+            searchResults.appendChild(card);
+                       
+                       
+                        
+                    });
+                });
+        }
+    </script>
+
+
+</body>
+
+</html>
