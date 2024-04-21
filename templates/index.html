@@ -68,7 +68,7 @@
             const StickerColour = document.getElementById('StickerColour').value; // Get selected data type
 
 
-            fetch(`/suggestions?q=${query}&StickerColour=${StickerColour}`)
+            fetch('{{ url_for("get_suggestions") }}?q=' + query + '&StickerColour=' + StickerColour)
                 .then(response => response.json())
                 .then(data => {
                     const suggestions = document.getElementById('suggestions');
@@ -89,7 +89,7 @@
             const StickerColour = document.getElementById('StickerColour').value;
             document.getElementById("searchInput").value = stickerNo;
 
-            fetch(`/fullData?vehicleNo=${vehicleNo || ''}&stickerNo=${stickerNo || ''}&stickerColour=${StickerColour || ''}`)
+            fetch('{{ url_for("get_full_data") }}?vehicleNo=' + (vehicleNo || '') + '&stickerNo=' + (stickerNo || '') + '&stickerColour=' + (StickerColour || ''))
                 .then(response => response.json())
                 .then(data => {
                     const searchResults = document.getElementById('searchResults');
